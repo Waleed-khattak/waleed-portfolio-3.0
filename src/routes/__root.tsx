@@ -11,6 +11,14 @@ import {
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 
+import { useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -118,9 +126,21 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    ScrollTrigger.normalizeScroll(true); // fixes iOS Safari variable viewport height
+
+    const refresh = () => ScrollTrigger.refresh();
+    window.addEventListener("load", refresh, { once: true });
+    const t = setTimeout(refresh, 800); // fallback for SSR hydration
+
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("load", refresh);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Toaster position="bottom-right" />
     </QueryClientProvider>

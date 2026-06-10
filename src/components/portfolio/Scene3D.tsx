@@ -67,10 +67,7 @@ const fragmentShader = `
 function ShaderOrb() {
   const matRef = useRef<THREE.ShaderMaterial>(null!);
   const meshRef = useRef<THREE.Mesh>(null!);
-  const uniforms = useMemo(
-    () => ({ uTime: { value: 0 }, uScroll: { value: 0 } }),
-    [],
-  );
+  const uniforms = useMemo(() => ({ uTime: { value: 0 }, uScroll: { value: 0 } }), []);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
@@ -174,12 +171,17 @@ export default function Scene3D() {
   return (
     <>
       <ScrollSync />
-      <div className="fixed inset-0 -z-10 pointer-events-none">
+      <div
+        className="fixed inset-0 -z-10 pointer-events-none"
+        style={{ touchAction: "none" }}
+        aria-hidden="true"
+      >
         <Canvas
           camera={{ position: [0, 0, 5], fov: 50 }}
           dpr={[1, 1.5]}
           frameloop={reduce ? "demand" : "always"}
           gl={{ antialias: true, powerPreference: "high-performance", alpha: true }}
+          style={{ touchAction: "none" }}
         >
           <color attach="background" args={["#05060d"]} />
           <fog attach="fog" args={["#05060d", 8, 22]} />
