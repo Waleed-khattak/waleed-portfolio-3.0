@@ -17,7 +17,7 @@ import "crypto";
 import "async_hooks";
 import "stream";
 import "../_libs/isbot.mjs";
-const appCss = "/assets/styles-BIbySO0C.css";
+const appCss = "/assets/styles-B13IlVtq.css";
 const Toaster = ({ ...props }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     Toaster$1,
@@ -140,7 +140,7 @@ function RootComponent() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(Toaster, { position: "bottom-right" })
   ] });
 }
-const $$splitComponentImporter = () => import("./index-O1hLqqNY.mjs");
+const $$splitComponentImporter = () => import("./index-BRRVryFC.mjs");
 const Route = createFileRoute("/")({
   head: () => ({
     meta: [{

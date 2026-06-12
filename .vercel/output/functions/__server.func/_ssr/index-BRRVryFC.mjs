@@ -24,12 +24,14 @@ function Reveal({
 }) {
   const ref = reactExports.useRef(null);
   const [visible, setVisible] = reactExports.useState(false);
+  const [done, setDone] = reactExports.useState(false);
   reactExports.useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) {
       setVisible(true);
+      setDone(true);
       return;
     }
     const io = new IntersectionObserver(
@@ -37,13 +39,15 @@ function Reveal({
         if (entry.isIntersecting) {
           setVisible(true);
           io.disconnect();
+          const t = setTimeout(() => setDone(true), delay + 900);
+          return () => clearTimeout(t);
         }
       },
       { threshold }
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [threshold]);
+  }, [threshold, delay]);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
@@ -52,8 +56,8 @@ function Reveal({
       style: {
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(32px)",
-        transition: `opacity 0.85s ease-out ${delay}ms, transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
-        willChange: "opacity, transform"
+        transition: done ? "none" : `opacity 0.85s ease-out ${delay}ms, transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
+        willChange: done ? "auto" : "opacity, transform"
       },
       children
     }
@@ -180,9 +184,7 @@ function highlightLine(line, lang) {
   const functionRegex = /\b(express|json|connect|post|get|create|status|find|sort|listen|size|calculateTotal|generate_report|strftime|now|append)\b/g;
   const stringRegex = /(".*?"|'.*?'|`.*?`)/g;
   const numberRegex = /\b(\d+)\b/g;
-  const parts = codePart.split(
-    /(".*?"|'.*?'|`.*?`|\b\d+\b|\b[A-Za-z_][A-Za-z0-9_]*\b)/g
-  );
+  const parts = codePart.split(/(".*?"|'.*?'|`.*?`|\b\d+\b|\b[A-Za-z_][A-Za-z0-9_]*\b)/g);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     parts.map((part, index) => {
       if (!part) return null;
@@ -212,9 +214,7 @@ function LiveCode() {
   const [text, setText] = reactExports.useState("");
   const reduceRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
-    reduceRef.current = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    reduceRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }, []);
   reactExports.useEffect(() => {
     const target = SNIPPETS[lang].code;
@@ -232,45 +232,51 @@ function LiveCode() {
     return () => clearInterval(id);
   }, [lang]);
   const lines = text.split("\n");
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl overflow-hidden border border-white/10 bg-[#0b1020]/95 shadow-2xl shadow-cyan-500/10 w-full max-w-full", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 border-b border-white/10 bg-[#0f172a]", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full max-w-full min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-[#0b1020]/95 shadow-2xl shadow-cyan-500/10", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 border-b border-white/10 bg-[#0f172a]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-red-400 shadow-lg shadow-red-400/40 shrink-0" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/40 shrink-0" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-green-400 shadow-lg shadow-green-400/40 shrink-0" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 sm:ml-3 font-mono text-[10px] sm:text-xs text-slate-400 truncate min-w-0", children: SNIPPETS[lang].file }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto font-mono text-[10px] sm:text-xs text-cyan-300 animate-pulse shrink-0", children: "● live" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 sm:ml-3 min-w-0 flex-1 truncate font-mono text-[10px] sm:text-xs text-slate-400", children: SNIPPETS[lang].file }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-[10px] sm:text-xs text-cyan-300 animate-pulse shrink-0", children: "● live" })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-0.5 sm:gap-1 px-2 sm:px-3 pt-2 sm:pt-3 border-b border-white/10 bg-[#0b1020]", children: TABS.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex min-w-0 gap-0.5 sm:gap-1 px-2 sm:px-3 pt-2 sm:pt-3 border-b border-white/10 bg-[#0b1020] overflow-x-auto", children: TABS.map((t) => /* @__PURE__ */ jsxRuntimeExports.jsx(
       "button",
       {
         onClick: () => setLang(t.id),
-        className: `font-mono text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-t-lg transition-all ${lang === t.id ? "bg-cyan-400/10 text-cyan-300 border-b-2 border-cyan-300" : "text-slate-500 hover:text-slate-200"}`,
+        className: `shrink-0 font-mono text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-t-lg transition-all ${lang === t.id ? "bg-cyan-400/10 text-cyan-300 border-b-2 border-cyan-300" : "text-slate-500 hover:text-slate-200"}`,
         children: t.label
       },
       t.id
     )) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full max-w-full min-w-0 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "pre",
       {
-        className: "font-mono leading-relaxed text-slate-200",
+        className: "block w-full max-w-full min-w-0 overflow-x-auto overflow-y-auto font-mono leading-relaxed text-slate-200",
         style: {
-          fontSize: "clamp(10px, 2.5vw, 12.5px)",
+          fontSize: "clamp(9.5px, 2.4vw, 12.5px)",
           padding: "clamp(10px, 3vw, 20px)",
           minHeight: "18rem",
           maxHeight: "26rem",
-          overflowX: "auto",
-          overflowY: "auto",
-          WebkitOverflowScrolling: "touch"
+          WebkitOverflowScrolling: "touch",
+          whiteSpace: "pre"
         },
         children: [
-          lines.map((line, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-slate-600 w-5 sm:w-8 shrink-0 select-none text-right pr-2 sm:pr-3 text-[9px] sm:text-[11px]", children: i + 1 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "flex-1 min-w-0 whitespace-pre", children: line ? highlightLine(line, lang) : " " })
-          ] }, i)),
+          lines.map((line, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "grid grid-cols-[1.7rem_max-content] sm:grid-cols-[2.5rem_max-content] min-w-max",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-slate-600 select-none text-right pr-2 sm:pr-3 text-[9px] sm:text-[11px]", children: i + 1 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "whitespace-pre", children: line ? highlightLine(line, lang) : " " })
+              ]
+            },
+            i
+          )),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block w-2 h-4 bg-cyan-300 align-middle animate-pulse" })
         ]
       }
-    )
+    ) })
   ] });
 }
 function createSupabaseClient() {
@@ -1085,22 +1091,23 @@ function CodePreviewModal({
   ] }) });
 }
 function About() {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("section", { id: "about", className: "relative py-24 sm:py-32 px-4 sm:px-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-6xl mx-auto grid lg:grid-cols-5 gap-10 sm:gap-12 items-center", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lg:col-span-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Reveal, { children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("section", { id: "about", className: "relative w-full max-w-full overflow-hidden py-24 sm:py-32 px-4 sm:px-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-10 sm:gap-12 items-center w-full overflow-hidden", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lg:col-span-2 min-w-0 w-full", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Reveal, { className: "min-w-0 w-full", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-mono text-xs uppercase tracking-[0.3em] text-primary mb-4", children: "// about" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "font-display text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-6", children: [
-          "I build things that ",
+          "I build things that",
+          " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gradient", children: "feel alive" }),
           " on the web."
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Reveal, { delay: 100, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 text-muted-foreground leading-relaxed text-sm sm:text-base", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Reveal, { delay: 100, className: "min-w-0 w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 text-muted-foreground leading-relaxed text-sm sm:text-base", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Based in Gujranwala, Pakistan - finishing a 16-year Bachelors at the University of Gujrat while shipping real-world products for clients and startups." }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "I care about the boring parts: clean architecture, predictable APIs, accessible UIs - and the magical parts: shaders, micro-interactions and interfaces that respond to you." })
       ] }) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:col-span-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Reveal, { delay: 200, children: /* @__PURE__ */ jsxRuntimeExports.jsx(LiveCode, {}) }) })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:col-span-3 min-w-0 overflow-hidden w-full max-w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Reveal, { delay: 200, className: "min-w-0 overflow-hidden w-full max-w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LiveCode, {}) }) })
   ] }) });
 }
 function Skills() {
