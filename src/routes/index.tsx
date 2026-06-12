@@ -666,30 +666,45 @@ function Hero() {
 /* ─── About ─────────────────────────────────────────────────────────── */
 function About() {
   return (
-    <section id="about" className="relative py-24 sm:py-32 px-4 sm:px-6">
-      <div className="max-w-6xl mx-auto grid lg:grid-cols-5 gap-10 sm:gap-12 items-center">
-        <div className="lg:col-span-2">
-          <Reveal>
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary mb-4">// about</p>
+    <section
+      id="about"
+      className="relative w-full max-w-full overflow-hidden py-24 sm:py-32 px-4 sm:px-6"
+    >
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-10 sm:gap-12 items-center w-full overflow-hidden">
+        <div className="lg:col-span-2 min-w-0 w-full">
+          <Reveal className="min-w-0 w-full">
+            <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary mb-4">
+              // about
+            </p>
+
             <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-6">
-              I build things that <span className="text-gradient">feel alive</span> on the web.
+              I build things that{" "}
+              <span className="text-gradient">feel alive</span> on the web.
             </h2>
           </Reveal>
-          <Reveal delay={100}>
+
+          <Reveal delay={100} className="min-w-0 w-full">
             <div className="space-y-4 text-muted-foreground leading-relaxed text-sm sm:text-base">
               <p>
-                Based in Gujranwala, Pakistan - finishing a 16-year Bachelors at the University of
-                Gujrat while shipping real-world products for clients and startups.
+                Based in Gujranwala, Pakistan - finishing a 16-year Bachelors
+                at the University of Gujrat while shipping real-world products
+                for clients and startups.
               </p>
+
               <p>
-                I care about the boring parts: clean architecture, predictable APIs, accessible UIs
-                - and the magical parts: shaders, micro-interactions and interfaces that respond to you.
+                I care about the boring parts: clean architecture, predictable
+                APIs, accessible UIs - and the magical parts: shaders,
+                micro-interactions and interfaces that respond to you.
               </p>
             </div>
           </Reveal>
         </div>
-        <div className="lg:col-span-3">
-          <Reveal delay={200}>
+
+        <div className="lg:col-span-3 min-w-0 overflow-hidden w-full max-w-full">
+          <Reveal
+            delay={200}
+            className="min-w-0 overflow-hidden w-full max-w-full"
+          >
             <LiveCode />
           </Reveal>
         </div>

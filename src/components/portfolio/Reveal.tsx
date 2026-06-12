@@ -15,15 +15,16 @@ export default function Reveal({
 }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    // Respect user's reduced-motion preference
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) {
       setVisible(true);
+      setDone(true);
       return;
     }
 
@@ -32,13 +33,19 @@ export default function Reveal({
         if (entry.isIntersecting) {
           setVisible(true);
           io.disconnect();
+          // Clear will-change after animation finishes so the browser
+          // stops keeping this element on its own compositor layer.
+          // Leaving will-change permanently causes mobile to re-composite
+          // on every scroll, making content inside jump or shift.
+          const t = setTimeout(() => setDone(true), delay + 900);
+          return () => clearTimeout(t);
         }
       },
       { threshold },
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [threshold]);
+  }, [threshold, delay]);
 
   return (
     <div
@@ -47,8 +54,10 @@ export default function Reveal({
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(32px)",
-        transition: `opacity 0.85s ease-out ${delay}ms, transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
-        willChange: "opacity, transform",
+        transition: done
+          ? "none"
+          : `opacity 0.85s ease-out ${delay}ms, transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
+        willChange: done ? "auto" : "opacity, transform",
       }}
     >
       {children}
